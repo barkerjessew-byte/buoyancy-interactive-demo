@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浮力原理演示程序</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>浮力原理演示程序</h1>
+            <p>拖动物体改变其在水中的位置，观察上下表面压力变化和浮力的产生原理</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="simulation-section">
+                <canvas id="canvas" width="700" height="500"></canvas>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="objectDensity">物体密度 (kg/m³)</label>
+                        <input type="range" id="objectDensity" min="500" max="2000" value="800" step="50">
+                        <span id="densityValue">800</span>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label for="objectSize">物体大小</label>
+                        <input type="range" id="objectSize" min="30" max="80" value="50" step="5">
+                        <span id="sizeValue">50</span>
+                    </div>
+                    
+                    <button id="resetBtn">重置位置</button>
+                    <div class="control-group">
+                        <label for="liquidType">液体类型</label>
+                        <select id="liquidType">
+                            <option value="water">水 (1000 kg/m³)</option>
+                            <option value="saltwater">盐水 (1030 kg/m³)</option>
+                            <option value="honey">蜂蜜 (1420 kg/m³)</option>
+                        </select>
+                        <span id="liquidDensityValue">1000</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="vector-controls">
+                    <h3>矢量显示</h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showTopPressure" checked>
+                            <span class="checkmark top-pressure"></span>
+                            上表面压力
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showBottomPressure" checked>
+                            <span class="checkmark bottom-pressure"></span>
+                            下表面压力
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showBuoyancy" checked>
+                            <span class="checkmark buoyancy"></span>
+                            浮力
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showWeight">
+                            <span class="checkmark weight"></span>
+                            重力
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="showBottomObject">
+                            <span class="checkmark bottom-object"></span>
+                            底部嵌入物体
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="data-panel">
+                    <h3>可拖动物体数据</h3>
+                    <div class="data-item">
+                        <span class="data-label">物体深度</span>
+                        <span class="data-value" id="depth">0.00 m</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">上表面压力</span>
+                        <span class="data-value" id="topPressure">0 Pa</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">下表面压力</span>
+                        <span class="data-value" id="bottomPressure">0 Pa</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">压力差</span>
+                        <span class="data-value" id="pressureDiff">0 Pa</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">浮力</span>
+                        <span class="data-value" id="buoyantForce">0.00 N</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">重力</span>
+                        <span class="data-value" id="weight">0.00 N</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">净力</span>
+                        <span class="data-value" id="netForce">0.00 N</span>
+                    </div>
+                </div>
+                
+                <div class="data-panel bottom-object-panel" id="bottomObjectPanel" style="display: none;">
+                    <h3>底部嵌入物体数据</h3>
+                    <div class="data-item">
+                        <span class="data-label">物体深度</span>
+                        <span class="data-value" id="bottomDepth">0.30 m</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">上表面压力</span>
+                        <span class="data-value" id="bottomTopPressure">2940 Pa</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">下表面压力</span>
+                        <span class="data-value" id="bottomBottomPressure">0 Pa</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">压力差</span>
+                        <span class="data-value" id="bottomPressureDiff">-2940 Pa</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">浮力</span>
+                        <span class="data-value" id="bottomBuoyantForce">0.00 N</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">重力</span>
+                        <span class="data-value" id="bottomWeight">7056.00 N</span>
+                    </div>
+                    <div class="data-item">
+                        <span class="data-label">净力</span>
+                        <span class="data-value" id="bottomNetForce">-7056.00 N (↓)</span>
+                    </div>
+                    <div class="data-note">
+                        <small>注：底部嵌入物体下方无液体，不产生浮力</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
